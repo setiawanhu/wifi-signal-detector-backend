@@ -18,7 +18,7 @@ class Wifi extends Model
     public function scopeFrequencySummary($query)
     {
         return $query->groupBy('frequency')
-                     ->selectRaw('COUNT(*) as total');
+                     ->selectRaw('COUNT(*) as total, frequency');
     }
 
     /**
@@ -27,23 +27,23 @@ class Wifi extends Model
      * @param $query
      * @return mixed
      */
-    public function scopeSignal($query)
+    public function scopeDataSummary($query)
     {
-        return $query->with(['location' => function ($query) {
-            $query->groupBy('name');
-        }])->selectRaw('AVG(signal_level) as signal_average');
+        return $query->with(['location'])
+            ->groupBy(['ssid','location_id'])
+            ->selectRaw('COUNT(ssid) as total, AVG(signal_level) as signal_average, location_id, ssid')
+            ->orderBy('location_id');
     }
 
     /**
      * Get wifi summary.
      *
-     * @param $query
      * @return mixed
      */
     public function summary()
     {
         $frequency = $this->frequencySummary()->get();
-        $signal = $this->signal()->get();
+        $signal = $this->data()->get()->groupBy('location.name');
 
         return [
             'frequency' => $frequency,
