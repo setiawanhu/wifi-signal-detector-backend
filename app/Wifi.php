@@ -43,7 +43,7 @@ class Wifi extends Model
     public function summary()
     {
         $frequency = $this->frequencySummary()->get();
-        $signal = $this->data()->get()->groupBy('location.name');
+        $signal = $this->dataSummary()->get()->groupBy('location.name');
 
         return [
             'frequency' => $frequency,
